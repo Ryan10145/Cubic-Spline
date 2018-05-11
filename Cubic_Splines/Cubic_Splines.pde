@@ -14,18 +14,16 @@ void setup()
                                                 {10, 25, 30, 25, 30, 25, 30, 25, 30, 25, 30, 12}, 
                                                 {10, 25, 30, 25, 30, 25, 30, 25, 30, 25, 30, 12}, 
                                                 {10, 25, 30, 25, 30, 25, 30, 25, 30, 25, 30, 12},});
-    Matrix matrix2 = new Matrix(new double[][] {{4, 51, 6}, {14, 15, 16}, {4, 15, 6}});
+    Matrix matrix2 = new Matrix(new double[][] {{2, -1, -2}, {-4, 6, 3}, {-4, -2, 8}});
 
     // matrix1.printMatrix();
     // matrix2.printMatrix();
 
     // mult(matrix1, matrix2).printMatrix();
-    // matrix1.printMatrix();
-
-    println(matrix1.determinant());
+    println(matrix2.determinant());
 }
 
 void draw()
 {
-
+    //https://www.gamedev.net/articles/programming/math-and-physics/matrix-inversion-using-lu-decomposition-r3637/
 }

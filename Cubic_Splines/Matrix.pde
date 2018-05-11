@@ -138,38 +138,106 @@ class Matrix
         rows = temp;
     }
 
+    // public double determinant()
+    // {
+    //     if(rows != cols) throw new IllegalArgumentException("Determinant of size " + rows + " : " + cols);
+    //     return determinant(this);
+    // }
+
+    // private double determinant(Matrix matrix)
+    // {
+    //     if(matrix.rows == 2 && matrix.cols == 2) return matrix.numbers[0][0] * matrix.numbers[1][1] - 
+    //         (matrix.numbers[0][1] * matrix.numbers[1][0]);
+
+    //     double sum = 0;
+    //     for(int i = 0; i < matrix.cols; i++)
+    //     {
+    //         double topNum = matrix.numbers[0][i];
+    //         double[][] otherNums = new double[matrix.rows - 1][matrix.cols - 1];
+    //         for(int row = 1; row < matrix.rows; row++)
+    //         {
+    //             for(int col = 0; col < matrix.cols; col++)
+    //             {
+    //                 if(col != i)
+    //                 {
+    //                     otherNums[row - 1][col > i ? col - 1 : col] = matrix.numbers[row][col];
+    //                 }
+    //             }
+    //         }
+
+    //         sum -= topNum * determinant(new Matrix(otherNums)) * (((i % 2) * 2) - 1);
+    //     }
+
+    //     println(matrix.rows, sum);
+    //     return sum;
+    // }
+
     public double determinant()
     {
-        if(rows != cols) throw new IllegalArgumentException("Determinant of size " + rows + " : " + cols);
-        return determinant(this);
-    }
+        double[][][] numbers = decomposeLU();
+        double[][] lower = numbers[0];
+        double[][] upper = numbers[1];
 
-    private double determinant(Matrix matrix)
-    {
-        if(matrix.rows == 2 && matrix.cols == 2) return matrix.numbers[0][0] * matrix.numbers[1][1] - 
-            (matrix.numbers[0][1] * matrix.numbers[1][0]);
-
-        double sum = 0;
-        for(int i = 0; i < matrix.cols; i++)
+        double determinantL = 1;
+        double determinantU = 1;
+        for(int i = 0; i < rows; i++)
         {
-            double topNum = matrix.numbers[0][i];
-            double[][] otherNums = new double[matrix.rows - 1][matrix.cols - 1];
-            for(int row = 1; row < matrix.rows; row++)
-            {
-                for(int col = 0; col < matrix.cols; col++)
-                {
-                    if(col != i)
-                    {
-                        otherNums[row - 1][col > i ? col - 1 : col] = matrix.numbers[row][col];
-                    }
-                }
-            }
-
-            sum -= topNum * determinant(new Matrix(otherNums)) * (((i % 2) * 2) - 1);
+            determinantL *= lower[i][i];
+            determinantU *= upper[i][i];
         }
 
-        println(matrix.rows, sum);
-        return sum;
+        return determinantL * determinantU;
+    }
+
+    //{0 - lower, 1 - upper}
+    private double[][][] decomposeLU()
+    {
+        if(rows != cols) 
+            throw new IllegalArgumentException("LU Decomposition of " + rows + " : " + cols);
+
+        double[][] lower = new double[rows][cols];
+        double[][] upper = new double[rows][cols];
+
+        for(int row = 0; row < rows; row++)
+        {
+            for(int col = 0; col < cols; col++)
+            {
+                lower[row][col] = 0;
+                upper[row][col] = 0;
+            }
+        }
+
+        for(int i = 0; i < rows; i++)
+        {
+            //Upper Triangular
+            for(int k = i; k < rows; k++)
+            {
+                int sum = 0;
+                for(int j = 0; j < i; j++)
+                {
+                    sum += lower[i][j] * upper[j][k];
+                }
+
+                upper[i][k] = numbers[i][k] - sum;
+            }
+
+            //Lower Triangular
+            for(int k = i; k < rows; k++)
+            {
+                if(i == k) lower[i][i] = 1;
+                else
+                {
+                    int sum = 0;
+                    for(int j = 0; j < i; j++)
+                    {
+                        sum += lower[k][j] * upper[j][i];
+                    }
+                    lower[k][i] = (numbers[k][i] - sum) / upper[i][i];
+                }
+            }
+        }
+
+        return new double[][][] {lower, upper};
     }
 }
 
