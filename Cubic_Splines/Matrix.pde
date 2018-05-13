@@ -21,6 +21,18 @@ class Matrix
         this.cols = numbers[0].length;
     }
 
+    public Matrix(double[] numbers1D)
+    {
+        this.numbers = new double[numbers1D.length][1];
+        for(int i = 0; i < numbers1D.length; i++)
+        {
+            this.numbers[i][0] = numbers1D[i];
+        }
+
+        this.rows = numbers1D.length;
+        this.cols = 1;
+    }
+
     public void setNumbers(double[][] numbers)
     {
         this.numbers = numbers;
@@ -35,6 +47,14 @@ class Matrix
             throw new IllegalArgumentException("Passed Coordinates " + row + " : " + col + 
                                                 " into Matrix of size " + rows + " : " + cols);
         numbers[row][col] = number;
+    }
+
+    public double getNumber(int row, int col)
+    {
+        if(row >= rows || col >= cols) 
+            throw new IllegalArgumentException("Passed Coordinates " + row + " : " + col + 
+                                                " into Matrix of size " + rows + " : " + cols);
+        return numbers[row][col];
     }
 
     public double[] getRow(int row)
