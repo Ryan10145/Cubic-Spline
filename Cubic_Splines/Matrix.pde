@@ -227,7 +227,7 @@ class Matrix
 
     // public double determinant()
     // {
-    //     double[][][] numbers = decomposeLU();
+    //     double[][][] numbers = decomposeLUP();
     //     double[][] lower = numbers[0];
     //     double[][] upper = numbers[1];
 
@@ -344,6 +344,14 @@ public Matrix mult(Matrix matrix1, Matrix matrix2)
     return new Matrix(newNumbers);
 }
 
+public double[][] mult(double[][] matrix1, double[][] matrix2)
+{
+    Matrix matrix1M = new Matrix(matrix1);
+    Matrix matrix2M = new Matrix(matrix2);
+
+    return mult(matrix1M, matrix2M).numbers;
+}
+
 public Matrix transpose(Matrix matrix)
 {
     double[][] newNumbers = new double[matrix.cols][matrix.rows];
@@ -393,7 +401,7 @@ public double[][] transpose(double[][] numbers)
 
 //{0 - lower, 1 - upper, 2 - permutation}
 //PA = LU
-private double[][][] decomposeLUP(Matrix A)
+public double[][][] decomposeLUP(Matrix A)
 {
     int rows = A.rows;
     int cols = A.cols;
@@ -404,105 +412,87 @@ private double[][][] decomposeLUP(Matrix A)
 
     double[][] lower = new double[rows][cols];
     double[][] upper = new double[rows][cols];
-    double[][] permutation = identity(rows).numbers;
-
-    for(int row = 0; row < rows; row++)
+    double[][] permutation = pivotize(A.numbers);
+    double[][] A2 = mult(permutation, A.numbers);
+    
+    for(int j = 0; j < rows; j++)
     {
-        for(int col = 0; col < cols; col++)
+        lower[j][j] = 1;
+        for(int i = 0; i < j + 1; i++)
         {
-            lower[row][col] = 0;
-            upper[row][col] = 0;
-            numbers[row][col] = A.numbers[row][col];
+            double s1 = 0;
+            for(int k = 0; k < i; k++)
+            {
+                s1 += upper[k][j] * lower[i][k];
+            }
+            upper[i][j] = A2[i][j] - s1;
+        }
+        for(int i = j; i < rows; i++)
+        {
+            double s2 = 0;
+            for(int k = 0; k < j; k++)
+            {
+                s2 += upper[k][j] * lower[i][k];
+            }
+            lower[i][j] = (A2[i][j] - s2) / upper[j][j];
         }
     }
-
-    for(int i = 0; i < rows; i++)
-    {
-        //Pivoting
-        double Umax = 0;
-        int row = 0;
-        for(int k = i; k < rows; k++)
-        {
-            double Uii = numbers[k][i];
-            for(int j = 0; j < i; j++)
-            {
-                Uii -= numbers[k][j] * numbers[j][k];
-            }
-            if(Math.abs(Uii) > Umax)
-            {
-                Umax = Math.abs(Uii);
-                row = k;
-            }
-        }
-        if(i != row)
-        {
-            swapRows(permutation, row, i);
-            swapRows(numbers, row, i);
-            swapRows(lower, row, i);
-            swapRows(upper, row, i);
-        }
-
-        //Upper Triangular
-        for(int k = i; k < rows; k++)
-        {
-            double sum = 0;
-            for(int j = 0; j < i; j++)
-            {
-                sum += lower[i][j] * upper[j][k];
-            }
-
-            upper[i][k] = numbers[i][k] - sum;
-        }
-
-        //Lower Triangular
-        for(int k = i; k < rows; k++)
-        {
-            if(i == k) lower[i][i] = 1;
-            else
-            {
-                double sum = 0;
-                for(int j = 0; j < i; j++)
-                {
-                    sum += lower[k][j] * upper[j][i];
-                }
-                lower[k][i] = (numbers[k][i] - sum) / upper[i][i];
-            }
-        }
-    }
-
-    // for(int i = 0; i < permutation.length / 2; i++)
-    // {
-    //     swapRows(permutation, i, permutation.length - 1 - i);
-    // }
-    // permutation = transpose(permutation);
 
     return new double[][][] {lower, upper, permutation};
 }
 
-// public Matrix inverse(Matrix matrix)
-// {
-//     Matrix ide = identity(matrix.rows);
-//     Matrix inv = new Matrix(matrix.rows, matrix.cols);
+//Store number of row exchanges so that the determinant of the matrix can be computed
+public double[][] pivotize(double[][] matrix)
+{
+    int rows = matrix.length;
+    double[][] id = identity(rows).numbers;
 
-//     MatrixSystem system = new MatrixSystem(matrix, ide.getColMatrix(0));
-//     system.calculateLU();
+    for(int i = 0; i < rows; i++)
+    {
+        double max = matrix[i][i];
+        int row = i;
+        for(int j = i; j < rows; j++)
+        {
+            if(matrix[j][i] > max)
+            {
+                max = matrix[j][i];
+                row = j;
+            }
+        }
 
-//     for(int col = 0; col < matrix.cols; col++)
-//     {
-//         if(col != 0)
-//         {
-//             system.C = ide.getColMatrix(col);
-//         }
+        if(i != row)
+        {
+            swapRows(id, i, row);
+        }
+    }
 
-//         system.calculateZ();
-//         system.calculateX();
+    return id;
+}
 
-//         double[] solutions = system.getXArray();
-//         for(int i = 0; i < solutions.length; i++)
-//         {
-//             inv.setNumber(solutions[i], i, col);
-//         }
-//     }
+public Matrix inverse(Matrix matrix)
+{
+    Matrix ide = identity(matrix.rows);
+    Matrix inv = new Matrix(matrix.rows, matrix.cols);
 
-//     return inv;
-// }
+    MatrixSystem system = new MatrixSystem(matrix, ide.getColMatrix(0));
+    system.calculateLUP();
+
+    for(int col = 0; col < matrix.cols; col++)
+    {
+        if(col != 0)
+        {
+            system.C = ide.getColMatrix(col);
+        }
+
+        system.calculateZ();
+        system.calculateX();
+
+        double[] solutions = system.getXArray();
+        for(int i = 0; i < solutions.length; i++)
+        {
+            inv.setNumber(solutions[i], i, col);
+        }
+    }
+
+    return inv;
+}

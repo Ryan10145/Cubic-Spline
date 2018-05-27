@@ -16,10 +16,10 @@ void setup()
     //                                             {10, 25, 30, 25, 30, 25, 30, 25, 30, 25, 30, 12}, 
     //                                             {10, 25, 30, 25, 30, 25, 30, 25, 30, 25, 30, 12}, 
     //                                             {10, 25, 30, 25, 30, 25, 30, 25, 30, 25, 30, 12}});
-    Matrix A = new Matrix(new double[][] {{1, 2, 1}, {4, 3, -1}, {7, 5, 3}});
-    Matrix C = new Matrix(new double[] {1, 6, 2});
+    Matrix A = new Matrix(new double[][] {{1, 2, 1, 6}, {4, 3, -1, 24}, {7, 5, 3, 14}, {1, 5, 2, 4}});
+    Matrix B = new Matrix(new double[] {1, 22, 2, 3});
 
-    // MatrixSystem system = new MatrixSystem(A, C);
+    // MatrixSystem system = new MatrixSystem(A, B);
     // system.calculateLUP();
     // system.calculateZ();
     // system.calculateX();
@@ -37,23 +37,26 @@ void setup()
     // mult(matrix1, matrix2).printMatrix();
     // println(matrix2.determinant());
     // println(millis());
-    // mult(inverse(A), A).printMatrix(4);
+    mult(inverse(A), A).printMatrix(4);
     // println(millis());
-    double[][][] matrices = decomposeLUP(A);
-    printMatrix(matrices[0], 3);
-    printMatrix(matrices[1], 3);
-    printMatrix(matrices[2], 3);
-    // printMatrix(matrices[2], 3);
+    // double[][][] matrices = decomposeLUP(A);
+    // printMatrix(matrices[0], 2);
+    // printMatrix(matrices[1], 2);
+    // printMatrix(matrices[2], 2);
+    // // printMatrix(matrices[2], 3);
 
-    Matrix L = new Matrix(matrices[0]);
-    Matrix U = new Matrix(matrices[1]);
-    Matrix P = new Matrix(matrices[2]);
+    // Matrix L = new Matrix(matrices[0]);
+    // Matrix U = new Matrix(matrices[1]);
+    // Matrix P = new Matrix(matrices[2]);
 
-    mult(mult(P, L), U).printMatrix(3);
+    // mult(L, U).printMatrix(2);
+    // mult(P, A).printMatrix(2);
     // A.transpose();
     // A.printMatrix(3);
 
-    println();
+    // println();
+
+    // println(LUPSolve(A, B));
 
     // curve = new CubicCurve(0, 1, 0, 0, -width / 2, width / 2);
 }
