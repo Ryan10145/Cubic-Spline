@@ -3,12 +3,13 @@ public class MatrixSystem
     Matrix A;
     Matrix L;
     Matrix U;
+    Matrix P;
 
     Matrix C;
     Matrix X;
     Matrix Z;
 
-    boolean calculatedLU;
+    boolean calculatedLUP;
     boolean calculatedZ;
     boolean calculatedX;
 
@@ -19,29 +20,32 @@ public class MatrixSystem
 
         L = null;
         U = null;
+        P = null;
 
         X = new Matrix(A.rows, 1);
         Z = new Matrix(A.rows, 1);
 
-        calculatedLU = false;
+        calculatedLUP = false;
         calculatedZ = false;
         calculatedX = false;
     }
 
-    void calculateLU()
+    void calculateLUP()
     {
-        double[][][] LU = A.decomposeLU();
-        L = new Matrix(LU[0]);
-        U = new Matrix(LU[1]);
+        double[][][] LUP = decomposeLUP(A);
+        L = new Matrix(LUP[0]);
+        U = new Matrix(LUP[1]);
+        P = new Matrix(LUP[2]);
 
-        calculatedLU = true;
+        calculatedLUP = true;
     }
 
     void calculateZ()
     {
+        Matrix PC = mult(P, C);
         for(int row = 0; row < Z.rows; row++)
         {
-            double value = C.getNumber(row, 0);
+            double value = PC.getNumber(row, 0);
             for(int col = 0; col < row; col++)
             {
                 value -= (L.getNumber(row, col) * Z.getNumber(col, 0));
@@ -58,9 +62,8 @@ public class MatrixSystem
         for(int row = X.rows - 1; row >= 0; row--)
         {
             double value = Z.getNumber(row, 0);
-            for(int col = 1; col <= row; col++)
+            for(int col = X.rows - 1; col > row; col--)
             {
-                col = U.cols - col;
                 value -= U.getNumber(row, col) * X.getNumber(col, 0);
             }
 
@@ -73,7 +76,7 @@ public class MatrixSystem
 
     void calculateSolutions()
     {
-        if(!calculatedLU) calculateLU();
+        if(!calculatedLUP) calculateLUP();
         if(!calculatedZ) calculateZ();
         if(!calculatedX) calculateX();
     }
@@ -87,6 +90,17 @@ public class MatrixSystem
     double[] solve()
     {
         calculateSolutions();
+        double[] solutions = new double[X.rows];
+        for(int i = 0; i < X.numbers.length; i++)
+        {
+            solutions[i] = X.numbers[i][0];
+        }
+
+        return solutions;
+    }
+
+    double[] getXArray()
+    {
         double[] solutions = new double[X.rows];
         for(int i = 0; i < X.numbers.length; i++)
         {

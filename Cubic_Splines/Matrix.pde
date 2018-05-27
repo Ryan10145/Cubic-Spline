@@ -62,6 +62,11 @@ class Matrix
         return numbers[row];
     }
 
+    public Matrix getRowMatrix(int row)
+    {
+        return new Matrix(new double[][] {numbers[row]});
+    }
+
     public double[] getCol(int col)
     {
         double[] colNumbers = new double[rows];
@@ -74,13 +79,24 @@ class Matrix
         return colNumbers;
     }
 
-    public void printMatrix()
+    public Matrix getColMatrix(int col)
+    {
+        Matrix matrix = new Matrix(this.rows, 1);
+        for(int i = 0; i < rows; i++)
+        {
+            matrix.setNumber(this.numbers[i][col], i, 0);
+        }
+
+        return matrix;
+    }
+
+    public void printMatrix(int decimalPlaces)
     {
         for(int row = 0; row < rows; row++)
         {
             for(int col = 0; col < cols; col++)
             {
-                print(numbers[row][col] + " ");
+                print(String.format("% ." + decimalPlaces + "f ", numbers[row][col]));
             }
             println();
         }
@@ -192,73 +208,39 @@ class Matrix
     //     return sum;
     // }
 
-    public double determinant()
+    public void swapRows(int row1, int row2)
     {
-        double[][][] numbers = decomposeLU();
-        double[][] lower = numbers[0];
-        double[][] upper = numbers[1];
-
-        double determinantL = 1;
-        double determinantU = 1;
-        for(int i = 0; i < rows; i++)
-        {
-            determinantL *= lower[i][i];
-            determinantU *= upper[i][i];
-        }
-
-        return determinantL * determinantU;
+        double[] temp = numbers[row1];
+        numbers[row1] = numbers[row2];
+        numbers[row2] = temp;
     }
 
-    //{0 - lower, 1 - upper}
-    private double[][][] decomposeLU()
+    public void swapCols(int col1, int col2)
     {
-        if(rows != cols) 
-            throw new IllegalArgumentException("LU Decomposition of " + rows + " : " + cols);
-
-        double[][] lower = new double[rows][cols];
-        double[][] upper = new double[rows][cols];
-
         for(int row = 0; row < rows; row++)
         {
-            for(int col = 0; col < cols; col++)
-            {
-                lower[row][col] = 0;
-                upper[row][col] = 0;
-            }
+            double temp = numbers[row][col1];
+            numbers[row][col1] = numbers[row][col2];
+            numbers[row][col2] = temp;
         }
-
-        for(int i = 0; i < rows; i++)
-        {
-            //Upper Triangular
-            for(int k = i; k < rows; k++)
-            {
-                int sum = 0;
-                for(int j = 0; j < i; j++)
-                {
-                    sum += lower[i][j] * upper[j][k];
-                }
-
-                upper[i][k] = numbers[i][k] - sum;
-            }
-
-            //Lower Triangular
-            for(int k = i; k < rows; k++)
-            {
-                if(i == k) lower[i][i] = 1;
-                else
-                {
-                    int sum = 0;
-                    for(int j = 0; j < i; j++)
-                    {
-                        sum += lower[k][j] * upper[j][i];
-                    }
-                    lower[k][i] = (numbers[k][i] - sum) / upper[i][i];
-                }
-            }
-        }
-
-        return new double[][][] {lower, upper};
     }
+
+    // public double determinant()
+    // {
+    //     double[][][] numbers = decomposeLU();
+    //     double[][] lower = numbers[0];
+    //     double[][] upper = numbers[1];
+
+    //     double determinantL = 1;
+    //     double determinantU = 1;
+    //     for(int i = 0; i < rows; i++)
+    //     {
+    //         determinantL *= lower[i][i];
+    //         determinantU *= upper[i][i];
+    //     }
+
+    //     return determinantL * determinantU;
+    // }
 }
 
 public Matrix identity(int size)
@@ -376,3 +358,151 @@ public Matrix transpose(Matrix matrix)
 
     return new Matrix(newNumbers);
 }
+
+public void swapRows(double[][] numbers, int row1, int row2)
+{
+    double[] temp = numbers[row1];
+    numbers[row1] = numbers[row2];
+    numbers[row2] = temp;
+}
+
+public void swapCols(double[][] numbers, int col1, int col2)
+{
+    for(int row = 0; row < numbers.length; row++)
+    {
+        double temp = numbers[row][col1];
+        numbers[row][col1] = numbers[row][col2];
+        numbers[row][col2] = temp;
+    }
+}
+
+public double[][] transpose(double[][] numbers)
+{
+    double[][] newNumbers = new double[numbers[0].length][numbers.length];
+
+    for(int row = 0; row < numbers.length; row++)
+    {
+        for(int col = 0; col < numbers[0].length; col++)
+        {
+            newNumbers[col][row] = numbers[row][col];
+        }
+    }
+
+    return newNumbers;
+}
+
+//{0 - lower, 1 - upper, 2 - permutation}
+//PA = LU
+private double[][][] decomposeLUP(Matrix A)
+{
+    int rows = A.rows;
+    int cols = A.cols;
+    double[][] numbers = new double[rows][cols];
+
+    if(rows != cols) 
+        throw new IllegalArgumentException("LUP Decomposition of " + rows + " : " + cols);
+
+    double[][] lower = new double[rows][cols];
+    double[][] upper = new double[rows][cols];
+    double[][] permutation = identity(rows).numbers;
+
+    for(int row = 0; row < rows; row++)
+    {
+        for(int col = 0; col < cols; col++)
+        {
+            lower[row][col] = 0;
+            upper[row][col] = 0;
+            numbers[row][col] = A.numbers[row][col];
+        }
+    }
+
+    for(int i = 0; i < rows; i++)
+    {
+        //Pivoting
+        double Umax = 0;
+        int row = 0;
+        for(int k = i; k < rows; k++)
+        {
+            double Uii = numbers[k][i];
+            for(int j = 0; j < i; j++)
+            {
+                Uii -= numbers[k][j] * numbers[j][k];
+            }
+            if(Math.abs(Uii) > Umax)
+            {
+                Umax = Math.abs(Uii);
+                row = k;
+            }
+        }
+        if(i != row)
+        {
+            swapRows(permutation, row, i);
+            swapRows(numbers, row, i);
+            swapRows(lower, row, i);
+            swapRows(upper, row, i);
+        }
+
+        //Upper Triangular
+        for(int k = i; k < rows; k++)
+        {
+            double sum = 0;
+            for(int j = 0; j < i; j++)
+            {
+                sum += lower[i][j] * upper[j][k];
+            }
+
+            upper[i][k] = numbers[i][k] - sum;
+        }
+
+        //Lower Triangular
+        for(int k = i; k < rows; k++)
+        {
+            if(i == k) lower[i][i] = 1;
+            else
+            {
+                double sum = 0;
+                for(int j = 0; j < i; j++)
+                {
+                    sum += lower[k][j] * upper[j][i];
+                }
+                lower[k][i] = (numbers[k][i] - sum) / upper[i][i];
+            }
+        }
+    }
+
+    // for(int i = 0; i < permutation.length / 2; i++)
+    // {
+    //     swapRows(permutation, i, permutation.length - 1 - i);
+    // }
+    // permutation = transpose(permutation);
+
+    return new double[][][] {lower, upper, permutation};
+}
+
+// public Matrix inverse(Matrix matrix)
+// {
+//     Matrix ide = identity(matrix.rows);
+//     Matrix inv = new Matrix(matrix.rows, matrix.cols);
+
+//     MatrixSystem system = new MatrixSystem(matrix, ide.getColMatrix(0));
+//     system.calculateLU();
+
+//     for(int col = 0; col < matrix.cols; col++)
+//     {
+//         if(col != 0)
+//         {
+//             system.C = ide.getColMatrix(col);
+//         }
+
+//         system.calculateZ();
+//         system.calculateX();
+
+//         double[] solutions = system.getXArray();
+//         for(int i = 0; i < solutions.length; i++)
+//         {
+//             inv.setNumber(solutions[i], i, col);
+//         }
+//     }
+
+//     return inv;
+// }
