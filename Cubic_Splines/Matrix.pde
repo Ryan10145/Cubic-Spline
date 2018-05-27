@@ -174,40 +174,6 @@ class Matrix
         rows = temp;
     }
 
-    // public double determinant()
-    // {
-    //     if(rows != cols) throw new IllegalArgumentException("Determinant of size " + rows + " : " + cols);
-    //     return determinant(this);
-    // }
-
-    // private double determinant(Matrix matrix)
-    // {
-    //     if(matrix.rows == 2 && matrix.cols == 2) return matrix.numbers[0][0] * matrix.numbers[1][1] - 
-    //         (matrix.numbers[0][1] * matrix.numbers[1][0]);
-
-    //     double sum = 0;
-    //     for(int i = 0; i < matrix.cols; i++)
-    //     {
-    //         double topNum = matrix.numbers[0][i];
-    //         double[][] otherNums = new double[matrix.rows - 1][matrix.cols - 1];
-    //         for(int row = 1; row < matrix.rows; row++)
-    //         {
-    //             for(int col = 0; col < matrix.cols; col++)
-    //             {
-    //                 if(col != i)
-    //                 {
-    //                     otherNums[row - 1][col > i ? col - 1 : col] = matrix.numbers[row][col];
-    //                 }
-    //             }
-    //         }
-
-    //         sum -= topNum * determinant(new Matrix(otherNums)) * (((i % 2) * 2) - 1);
-    //     }
-
-    //     println(matrix.rows, sum);
-    //     return sum;
-    // }
-
     public void swapRows(int row1, int row2)
     {
         double[] temp = numbers[row1];
@@ -225,22 +191,25 @@ class Matrix
         }
     }
 
-    // public double determinant()
-    // {
-    //     double[][][] numbers = decomposeLUP();
-    //     double[][] lower = numbers[0];
-    //     double[][] upper = numbers[1];
+    public double determinant()
+    {
+        double[][][] numbers = decomposeLUP(this);
+        double[][] lower = numbers[0];
+        double[][] upper = numbers[1];
 
-    //     double determinantL = 1;
-    //     double determinantU = 1;
-    //     for(int i = 0; i < rows; i++)
-    //     {
-    //         determinantL *= lower[i][i];
-    //         determinantU *= upper[i][i];
-    //     }
+        double rowExchanges = numbers[3][0][0];
 
-    //     return determinantL * determinantU;
-    // }
+        double determinantL = 1;
+        double determinantU = 1;
+        double determinantP = Math.pow(-1, rowExchanges);
+        for(int i = 0; i < rows; i++)
+        {
+            determinantL *= lower[i][i];
+            determinantU *= upper[i][i];
+        }
+
+        return determinantL * determinantU * determinantP;
+    }
 }
 
 public Matrix identity(int size)
@@ -399,7 +368,7 @@ public double[][] transpose(double[][] numbers)
     return newNumbers;
 }
 
-//{0 - lower, 1 - upper, 2 - permutation}
+//{0 - lower, 1 - upper, 2 - permutation, 3 - 1x1 array with row exchanges}
 //PA = LU
 public double[][][] decomposeLUP(Matrix A)
 {
@@ -412,7 +381,11 @@ public double[][][] decomposeLUP(Matrix A)
 
     double[][] lower = new double[rows][cols];
     double[][] upper = new double[rows][cols];
-    double[][] permutation = pivotize(A.numbers);
+
+    double[][][] pivotData = pivotize(A.numbers);
+    double[][] permutation = pivotData[0];
+    int rowExchanges = (int) pivotData[1][0][0];
+
     double[][] A2 = mult(permutation, A.numbers);
     
     for(int j = 0; j < rows; j++)
@@ -438,14 +411,15 @@ public double[][][] decomposeLUP(Matrix A)
         }
     }
 
-    return new double[][][] {lower, upper, permutation};
+    return new double[][][] {lower, upper, permutation, new double[][] {{rowExchanges}}};
 }
 
-//TODO Store number of row exchanges so that the determinant of the matrix can be computed
-public double[][] pivotize(double[][] matrix)
+//1st - pivoted array, 2nd - 1x1 array with amount of row exchanges
+public double[][][] pivotize(double[][] matrix)
 {
     int rows = matrix.length;
     double[][] id = identity(rows).numbers;
+    int exchanges = 0;
 
     for(int i = 0; i < rows; i++)
     {
@@ -463,10 +437,11 @@ public double[][] pivotize(double[][] matrix)
         if(i != row)
         {
             swapRows(id, i, row);
+            exchanges++;
         }
     }
 
-    return id;
+    return new double[][][] {id, new double[][] {{exchanges}}};
 }
 
 public Matrix inverse(Matrix matrix)
