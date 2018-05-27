@@ -441,7 +441,7 @@ public double[][][] decomposeLUP(Matrix A)
     return new double[][][] {lower, upper, permutation};
 }
 
-//Store number of row exchanges so that the determinant of the matrix can be computed
+//TODO Store number of row exchanges so that the determinant of the matrix can be computed
 public double[][] pivotize(double[][] matrix)
 {
     int rows = matrix.length;
