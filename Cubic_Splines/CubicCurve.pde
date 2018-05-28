@@ -23,6 +23,11 @@ public class CubicCurve
         this.endX = endX;
     }
 
+    public CubicCurve(double[] parameters, double startX, double endX)
+    {
+        this(parameters[0], parameters[1], parameters[2], parameters[3], startX, endX);
+    }
+
     void draw(color strokeColor)
     {
         stroke(strokeColor);
@@ -32,7 +37,7 @@ public class CubicCurve
         beginShape();
         for(double x = startX; x <= endX; x += STEP)
         {
-            vertex((float) x, (float) -(a * x * x * x + b * x * x + c * x + d));
+            vertex((float) x, (float) (height - (a * x * x * x + b * x * x + c * x + d)));
         }
         endShape();
     }
