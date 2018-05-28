@@ -10,7 +10,7 @@ public class CubicCurve
     double startX;
     double endX;
 
-    final double STEP = 0.25;
+    final double STEP = 1;
 
     public CubicCurve(double a, double b, double c, double d, double startX, double endX)
     {
