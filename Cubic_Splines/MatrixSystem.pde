@@ -1,3 +1,5 @@
+//Class for solving systems of equations using matrices
+
 public class MatrixSystem
 {
     Matrix A;
@@ -15,6 +17,10 @@ public class MatrixSystem
 
     public MatrixSystem(Matrix A, Matrix C)
     {
+        if(A.rows != C.rows) 
+            throw new IllegalArgumentException("System created with matrices of size " + A.rows + " : " + A.cols + 
+                " and " + C.rows + " : " + C.cols);
+
         this.A = A;
         this.C = C;
 
@@ -28,6 +34,16 @@ public class MatrixSystem
         calculatedLUP = false;
         calculatedZ = false;
         calculatedX = false;
+    }
+
+    public MatrixSystem(double[][] A, double[] C)
+    {
+        this(new Matrix(A), new Matrix(C));
+    }
+
+    public MatrixSystem(double[][] A, double[][] C)
+    {
+        this(new Matrix(A), new Matrix(C));
     }
 
     void calculateLUP()

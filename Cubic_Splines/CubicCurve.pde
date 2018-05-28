@@ -1,3 +1,5 @@
+//Class for drawing a cubic equation in a certain range
+
 public class CubicCurve
 {
     double a;
