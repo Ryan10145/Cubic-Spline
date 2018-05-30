@@ -25,18 +25,63 @@ void draw()
 void mousePressed()
 {
     points.add(new ControlPoint(mouseX, height - mouseY));
+    
     if(points.size() % 4 == 0 && points.size() != 0)
     {
+        double[][] matrixTransform = null;
+
+        //Check for any duplicate x values
+        //While there are duplicate x values, rotate all of the points, generate the cubic curve, and then unrotate
+        ControlPoint[] tempPoints = new ControlPoint[4];
+        boolean duplicate = false;
+        for(int i = points.size() - 4; i < points.size(); i++)
+        {
+            tempPoints[i - (points.size() - 4)] = points.get(i).clone();
+            for(int j = i + 1; j < points.size() && !duplicate; j++)
+            {
+                if(points.get(j).x == points.get(i).x) duplicate = true;
+            }
+        }
+
+        double angle = PI / 6.0;
+
+        while(duplicate)
+        {
+            //Reset the points
+            for(int i = points.size() - 4; i < points.size(); i++)
+            {
+                tempPoints[i - (points.size() - 4)] = points.get(i).clone();
+            }
+
+            //Apply a matrix transform
+            matrixTransform = rotation(angle);
+            for(int i = 0; i < tempPoints.length; i++)
+            {
+                tempPoints[i].mult(matrixTransform);
+            }
+
+            //Recheck for duplicates
+            duplicate = false;
+            for(int i = 0; i < tempPoints.length; i++)
+            {
+                for(int j = i + 1; j < tempPoints.length && !duplicate; j++)
+                {
+                    if(tempPoints[i].x == tempPoints[j].x) duplicate = true;
+                }
+            }
+
+            angle *= 2.0;
+        }
+
         //Create a new cubic curve (generate parameters with a matrix)
         Matrix A = new Matrix(4, 4);
         Matrix b = new Matrix(4, 1);
 
         double minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
 
-        for(int i = points.size() - 4; i < points.size(); i++)
+        for(int row = 0; row < tempPoints.length; row++)
         {
-            ControlPoint point = points.get(i);
-            int row = i - (points.size() - 4);
+            ControlPoint point = tempPoints[row];
             
             double x = point.x;
             double y = point.y;
@@ -54,6 +99,7 @@ void mousePressed()
         MatrixSystem system = new MatrixSystem(A, b);
         double[] parameters = system.solve();
 
-        curves.add(new CubicCurve(parameters, minX, maxX));
+        if(matrixTransform != null) matrixTransform = transpose(matrixTransform);
+        curves.add(new CubicCurve(parameters, minX, maxX, matrixTransform));
     }
 }

@@ -16,4 +16,18 @@ public class ControlPoint
         strokeWeight(thickness);
         point((float) x, height - (float) y);
     }
+
+    ControlPoint clone()
+    {
+        return new ControlPoint(x, y);
+    }
+
+    void mult(double[][] matrix)
+    {
+        double tempX = dot(new double[] {x, y}, matrix[0]);
+        double tempY = dot(new double[] {x, y}, matrix[1]);
+
+        this.x = tempX;
+        this.y = tempY;
+    }
 }

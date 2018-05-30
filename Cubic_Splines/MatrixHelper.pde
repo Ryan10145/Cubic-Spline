@@ -137,6 +137,21 @@ public Matrix transpose(Matrix matrix)
     return new Matrix(newNumbers);
 }
 
+public double[][] transpose(double[][] matrix)
+{
+    double[][] newNumbers = new double[matrix[0].length][matrix.length];
+
+    for(int row = 0; row < matrix.length; row++)
+    {
+        for(int col = 0; col < matrix[0].length; col++)
+        {
+            newNumbers[col][row] = matrix[row][col];
+        }
+    }
+
+    return newNumbers;
+}
+
 public void swapRows(double[][] numbers, int row1, int row2)
 {
     double[] temp = numbers[row1];
@@ -152,21 +167,6 @@ public void swapCols(double[][] numbers, int col1, int col2)
         numbers[row][col1] = numbers[row][col2];
         numbers[row][col2] = temp;
     }
-}
-
-public double[][] transpose(double[][] numbers)
-{
-    double[][] newNumbers = new double[numbers[0].length][numbers.length];
-
-    for(int row = 0; row < numbers.length; row++)
-    {
-        for(int col = 0; col < numbers[0].length; col++)
-        {
-            newNumbers[col][row] = numbers[row][col];
-        }
-    }
-
-    return newNumbers;
 }
 
 //{0 - lower, 1 - upper, 2 - permutation, 3 - 1x1 array with row exchanges}
