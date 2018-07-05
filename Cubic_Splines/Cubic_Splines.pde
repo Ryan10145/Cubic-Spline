@@ -5,6 +5,8 @@ ArrayList<CubicCurve> curves;
 
 ControlPoint hoverPoint;
 
+boolean shift;
+
 void setup()
 {
     size(1000, 600);
@@ -12,6 +14,8 @@ void setup()
 
     points = new ArrayList<ControlPoint>();
     curves = new ArrayList<CubicCurve>();
+
+    shift = false;
 }
 
 void draw()
@@ -42,6 +46,11 @@ void mousePressed()
     if(hoverPoint == null)
     {
         points.add(new ControlPoint(mouseX, height - mouseY));
+        generatePath();
+    }
+    else if(shift)
+    {
+        points.remove(hoverPoint);
         generatePath();
     }
 }
@@ -76,7 +85,11 @@ void generatePath()
 {
     Collections.sort(points);
     
-    if(points.size() > 2)
+    if(points.size() <= 2)
+    {
+        curves.clear();
+    }
+    else
     {
         int matrixSize = (points.size() - 1) * 4;
         Matrix matrix = new Matrix(matrixSize, matrixSize);
@@ -193,8 +206,18 @@ void generatePath()
 
 void keyPressed()
 {
-    points.clear();
-    curves.clear();
+    if(key == 'r' || key == 'R')
+    {
+        points.clear();
+        curves.clear();
 
-    background(254);
+        background(254);
+    }
+
+    if(keyCode == SHIFT) shift = true;
+}
+
+void keyReleased()
+{
+    if(keyCode == SHIFT) shift = false;
 }
