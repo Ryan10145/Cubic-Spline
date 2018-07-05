@@ -55,18 +55,6 @@ void mousePressed()
     }
 }
 
-//Inclusive start, exclusive end
-double[] subarray(double[] array, int start, int end)
-{
-    double[] returnArray = new double[end - start];
-    for(int i = 0; i < end - start; i++)
-    {
-        returnArray[i] = array[start + i];
-    }
-
-    return returnArray;
-}
-
 void mouseDragged()
 {
     if(hoverPoint != null)
@@ -79,6 +67,24 @@ void mouseDragged()
 void mouseReleased()
 {
     generatePath();
+}
+
+void keyPressed()
+{
+    if(key == 'r' || key == 'R')
+    {
+        points.clear();
+        curves.clear();
+
+        background(254);
+    }
+
+    if(keyCode == SHIFT) shift = true;
+}
+
+void keyReleased()
+{
+    if(keyCode == SHIFT) shift = false;
 }
 
 void generatePath()
@@ -204,20 +210,14 @@ void generatePath()
     }
 }
 
-void keyPressed()
+//Inclusive start, exclusive end
+double[] subarray(double[] array, int start, int end)
 {
-    if(key == 'r' || key == 'R')
+    double[] returnArray = new double[end - start];
+    for(int i = 0; i < end - start; i++)
     {
-        points.clear();
-        curves.clear();
-
-        background(254);
+        returnArray[i] = array[start + i];
     }
 
-    if(keyCode == SHIFT) shift = true;
-}
-
-void keyReleased()
-{
-    if(keyCode == SHIFT) shift = false;
+    return returnArray;
 }
