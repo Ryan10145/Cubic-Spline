@@ -10,9 +10,9 @@ public class ControlPoint implements Comparable
         this.y = y;
     }
 
-    void draw(int thickness)
+    void draw(int thickness, color drawColor)
     {
-        stroke(0);
+        stroke(drawColor);
         strokeWeight(thickness);
         point((float) x, height - (float) y);
     }
@@ -35,5 +35,10 @@ public class ControlPoint implements Comparable
     public int compareTo(Object other)
     {
         return (int) (this.x - ((ControlPoint) other).x);
+    }
+
+    boolean hover()
+    {
+        return ((Math.pow(this.x - mouseX, 2) + Math.pow((height - this.y) - mouseY, 2)) < 25);
     }
 }
