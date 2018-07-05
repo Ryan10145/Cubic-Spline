@@ -1,6 +1,6 @@
 //Class for storing a point that manipulates a cubic curve
 
-public class ControlPoint
+public class ControlPoint implements Comparable
 {
     double x, y;
 
@@ -29,5 +29,11 @@ public class ControlPoint
 
         this.x = tempX;
         this.y = tempY;
+    }
+
+    @Override
+    public int compareTo(Object other)
+    {
+        return (int) (this.x - ((ControlPoint) other).x);
     }
 }

@@ -1,3 +1,5 @@
+import java.util.Collections;
+
 ArrayList<ControlPoint> points;
 ArrayList<CubicCurve> curves;
 
@@ -26,6 +28,7 @@ void draw()
 void mousePressed()
 {
     points.add(new ControlPoint(mouseX, height - mouseY));
+    Collections.sort(points);
     
     if(points.size() > 2)
     {
