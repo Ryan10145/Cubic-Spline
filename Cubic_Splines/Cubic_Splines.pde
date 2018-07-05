@@ -12,6 +12,7 @@ void setup()
 
 void draw()
 {
+    background(255);
     for(ControlPoint point : points)
     {
         point.draw(5);
@@ -41,7 +42,7 @@ void mousePressed()
             //Point 1
             for(int j = 0; j < 4; j++)
             {
-                println("Point 1", i, j);
+                // println("Point 1", i, j);
                 double x = Math.pow(point.x, j);
                 matrix.setNumber(x, currentRow, i * 4 + (3 - j));
                 answers.setNumber(point.y, currentRow, 0);
@@ -50,7 +51,7 @@ void mousePressed()
             //Point 2
             for(int j = 0; j < 4; j++)
             {
-                println("Point 2", i, j);
+                // println("Point 2", i, j);
                 double x = Math.pow(nextPoint.x, j);
                 matrix.setNumber(x, currentRow, i * 4 + (3 - j));
             }
@@ -63,9 +64,9 @@ void mousePressed()
                 double slope = 2;
                 for(int j = 0; j < 3; j++)
                 {
-                    println("First Slope", i, j);
+                    // println("First Slope", i, j);
                     double x = Math.pow(point.x, j);
-                    matrix.setNumber(x, currentRow, i * 4 + (2 - j));
+                    matrix.setNumber(x * (j + 1), currentRow, i * 4 + (2 - j));
                 }
                 answers.setNumber(slope, currentRow, 0);
                 currentRow++;
@@ -73,18 +74,18 @@ void mousePressed()
             //Second Slope if First/Middle Segment (Join)
             if(i != points.size() - 2)
             {
-                println("Second Slope", i);
+                // println("Second Slope", i);
                 for(int j = 0; j < 3; j++)
                 {
-                    println("First Area", i, j);
+                    // println("First Area", i, j);
                     double x = Math.pow(nextPoint.x, j);
-                    matrix.setNumber(x, currentRow, i * 4 + (2 - j));
+                    matrix.setNumber(x * (j + 1), currentRow, i * 4 + (2 - j));
                 }
                 for(int j = 0; j < 3; j++)
                 {
-                    println("Second Area", i, j);
+                    // println("Second Area", i, j);
                     double x = Math.pow(nextPoint.x, j);
-                    matrix.setNumber(-x, currentRow, 4 + i * 4 + (2 - j));
+                    matrix.setNumber(-x * (j + 1), currentRow, 4 + i * 4 + (2 - j));
                 }
                 answers.setNumber(0, currentRow, 0);
                 currentRow++;
@@ -92,15 +93,19 @@ void mousePressed()
             //Curvature if First/Middle Segment
             if(i != points.size() - 2)
             {
-                println("Curvature", i);
+                // println("Curvature", i);
                 for(int j = 0; j < 2; j++)
                 {
                     double x = Math.pow(nextPoint.x, j);
+                    if(j == 0) x *= 2;
+                    else if(j == 1) x *= 6;
                     matrix.setNumber(x, currentRow, i * 4 + (1 - j));
                 }
                 for(int j = 0; j < 2; j++)
                 {
                     double x = Math.pow(nextPoint.x, j);
+                    if(j == 0) x *= 2;
+                    else if(j == 1) x *= 6;
                     matrix.setNumber(-x, currentRow, 4 + i * 4 + (1 - j));
                 }
                 answers.setNumber(0, currentRow, 0);
@@ -112,16 +117,21 @@ void mousePressed()
                 double slope = 2;
                 for(int j = 0; j < 3; j++)
                 {
-                    println("End Slope", i, j);
+                    // println("End Slope", i, j);
                     double x = Math.pow(nextPoint.x, j);
-                    matrix.setNumber(x, currentRow, i * 4 + (2 - j));
+                    matrix.setNumber(x * (j + 1), currentRow, i * 4 + (2 - j));
                 }
                 answers.setNumber(slope, currentRow, 0);
                 currentRow++;
             }
+
+            println(point.x, point.y);
+            if(i == points.size() - 2) println(nextPoint.x, nextPoint.y);
         }
 
         MatrixSystem system = new MatrixSystem(matrix, answers);
+        printMatrix(matrix.numbers, 0);
+        printMatrix(answers.numbers, 0);
         double[] parameters = system.solve();
 
         curves.clear();
