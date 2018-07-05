@@ -123,7 +123,7 @@ void generatePath()
             //First Slope if First Segment
             if(i == 0)
             {
-                double slope = 2;
+                double slope = (nextPoint.y - point.y) / (nextPoint.x - point.x);
                 for(int j = 0; j < 3; j++)
                 {
                     // println("First Slope", i, j);
@@ -176,7 +176,7 @@ void generatePath()
             //Slope if End Segment
             if(i == points.size() - 2)
             {
-                double slope = 2;
+                double slope = (nextPoint.y - point.y) / (nextPoint.x - point.x);
                 for(int j = 0; j < 3; j++)
                 {
                     // println("End Slope", i, j);
