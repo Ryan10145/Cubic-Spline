@@ -6,6 +6,9 @@ ArrayList<CubicCurve> curves;
 ControlPoint hoverPoint;
 
 boolean shift;
+int tintAlpha;
+
+final int MAX_POINTS = 20;
 
 void setup()
 {
@@ -16,6 +19,7 @@ void setup()
     curves = new ArrayList<CubicCurve>();
 
     shift = false;
+    tintAlpha = 0;
 }
 
 void draw()
@@ -32,6 +36,7 @@ void draw()
             thickness *= 2;
             hoverPoint = point;
             drawColor = color(50, 200);
+            if(shift) drawColor = color(255, 0, 0, 200);
         }
         point.draw(thickness, drawColor);
     }
@@ -39,14 +44,25 @@ void draw()
     {
         curve.draw(0);
     }
+
+    //Draw tint for the too many points warning
+    fill(255, 0, 0, tintAlpha);
+    noStroke();
+    rectMode(CENTER);
+    rect(width / 2, height / 2, width, height);
+    if(tintAlpha > 0) tintAlpha -= 8;
 }
 
 void mousePressed()
 {
     if(hoverPoint == null)
     {
-        points.add(new ControlPoint(mouseX, height - mouseY));
-        generatePath();
+        if(points.size() < MAX_POINTS)
+        {
+            points.add(new ControlPoint(mouseX, height - mouseY));
+            generatePath();
+        }
+        else tintAlpha = 128;
     }
     else if(shift)
     {
